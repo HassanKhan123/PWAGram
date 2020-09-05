@@ -1,7 +1,10 @@
+const STATIC_CACHE = "static-v3";
+const DYNAMIC_CACHE = "dynamic";
+
 self.addEventListener("install", (e) => {
   console.log("[SW] Installing service worker...", e);
   e.waitUntil(
-    caches.open("static").then((cache) => {
+    caches.open(STATIC_CACHE).then((cache) => {
       console.log("[SW] Precaching...");
       cache.addAll([
         "/",
@@ -24,6 +27,18 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   console.log("[SW] Activating service worker...", e);
+  e.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(
+        keyList.map((key) => {
+          if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
+            console.log("[SW] Removing old cache...", key);
+            caches.delete(key);
+          }
+        })
+      );
+    })
+  );
   // return self.ClientRectList.
 });
 
@@ -34,14 +49,13 @@ self.addEventListener("fetch", (e) => {
         return res;
       } else {
         return fetch(e.request)
-        .then((resp) => {
-          return caches.open("dynamic").then((cache) => {
-            cache.put(e.request.url, resp.clone());
-            return resp;
-          });
-        }).catch(err => {
-            
-        })
+          .then((resp) => {
+            return caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(e.request.url, resp.clone());
+              return resp;
+            });
+          })
+          .catch((err) => {});
       }
     })
   );
