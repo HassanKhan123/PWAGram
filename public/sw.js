@@ -1,5 +1,9 @@
 self.addEventListener('install',(e) => {
     console.log('[SW] Installing service worker...',e)
+    e.waitUntil(caches.open('static').then((cache) => {
+        console.log('[SW] Precaching...')
+        cache.add('/src/js/app.js')
+    }))
 })
 
 self.addEventListener('activate',(e) => {
