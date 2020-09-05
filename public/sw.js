@@ -12,5 +12,13 @@ self.addEventListener('activate',(e) => {
 })
 
 self.addEventListener('fetch',(e) => {
-    e.respondWith(fetch(e.request))
+    e.respondWith(
+        caches.match(e.request).then((res) => {
+            if(res){
+                return res
+            }else {
+                return fetch(e.request)
+            }
+        })
+    )
 })
