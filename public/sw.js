@@ -33,12 +33,15 @@ self.addEventListener("fetch", (e) => {
       if (res) {
         return res;
       } else {
-        return fetch(e.request).then((resp) => {
+        return fetch(e.request)
+        .then((resp) => {
           return caches.open("dynamic").then((cache) => {
             cache.put(e.request.url, resp.clone());
             return resp;
           });
-        });
+        }).catch(err => {
+            
+        })
       }
     })
   );
