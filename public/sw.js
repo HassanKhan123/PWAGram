@@ -40,7 +40,6 @@ self.addEventListener("activate", (e) => {
       );
     })
   );
-  // return self.ClientRectList.
 });
 
 self.addEventListener("fetch", (e) => {
@@ -65,3 +64,29 @@ self.addEventListener("fetch", (e) => {
     })
   );
 });
+
+// Strategy Network first with dynamic caching with Cache fallback
+// self.addEventListener("fetch", (e) => {
+//   e.respondWith(
+//     fetch(e.request)
+//       .then((res) => {
+//         return caches.open(DYNAMIC_CACHE).then((cache) => {
+//           cache.put(e.request.url, res.clone());
+//           return res;
+//         });
+//       })
+//       .catch((err) => {
+//         return caches.match(e.request);
+//       })
+//   );
+// });
+
+//Strategy Cache Only
+// self.addEventListener("fetch", (e) => {
+//   e.respondWith(caches.match(e.request));
+// });
+
+//Strategy Network only
+// self.addEventListener("fetch", (e) => {
+//   e.respondWith(fetch(e.request));
+// });
