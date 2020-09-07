@@ -1,4 +1,4 @@
-const STATIC_CACHE = "static-v9";
+const STATIC_CACHE = "static-v11";
 const DYNAMIC_CACHE = "dynamic";
 
 self.addEventListener("install", (e) => {
@@ -43,27 +43,62 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  e.respondWith(
-    caches.match(e.request).then((res) => {
-      if (res) {
-        return res;
-      } else {
-        return fetch(e.request)
-          .then((resp) => {
-            return caches.open(DYNAMIC_CACHE).then((cache) => {
-              cache.put(e.request.url, resp.clone());
-              return resp;
+  let url = "https://httpbin.org/get";
+  if (e.request.url.indexOf(url) > -1) {
+    e.respondWith(
+      caches.open(DYNAMIC_CACHE).then((cache) => {
+        return fetch(e.request).then((res) => {
+          cache.put(e.request, res.clone());
+          return res;
+        });
+      })
+    );
+  } else {
+    e.respondWith(
+      caches.match(e.request).then((res) => {
+        if (res) {
+          return res;
+        } else {
+          return fetch(e.request)
+            .then((resp) => {
+              return caches.open(DYNAMIC_CACHE).then((cache) => {
+                cache.put(e.request.url, resp.clone());
+                return resp;
+              });
+            })
+            .catch((err) => {
+              return caches.open(STATIC_CACHE).then((cache) => {
+                return cache.match("/offline.html");
+              });
             });
-          })
-          .catch((err) => {
-            return caches.open(STATIC_CACHE).then((cache) => {
-              return cache.match("/offline.html");
-            });
-          });
-      }
-    })
-  );
+        }
+      })
+    );
+  }
 });
+
+// self.addEventListener("fetch", (e) => {
+//   e.respondWith(
+// caches.match(e.request).then((res) => {
+//   if (res) {
+//     return res;
+//   } else {
+//     return fetch(e.request)
+//       .then((resp) => {
+//         return caches.open(DYNAMIC_CACHE).then((cache) => {
+//           cache.put(e.request.url, resp.clone());
+//           return resp;
+//         });
+//       })
+//       .catch((err) => {
+//         return caches.open(STATIC_CACHE).then((cache) => {
+//           return cache.match("/offline.html");
+//         });
+//       });
+//   }
+// })
+//   );
+// });
 
 // Strategy Network first with dynamic caching with Cache fallback
 // self.addEventListener("fetch", (e) => {

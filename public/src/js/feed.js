@@ -1,20 +1,22 @@
-var shareImageButton = document.querySelector('#share-image-button');
-var createPostArea = document.querySelector('#create-post');
-var closeCreatePostModalButton = document.querySelector('#close-create-post-modal-btn');
-var sharedMomentsArea = document.querySelector('#shared-moments');
+var shareImageButton = document.querySelector("#share-image-button");
+var createPostArea = document.querySelector("#create-post");
+var closeCreatePostModalButton = document.querySelector(
+  "#close-create-post-modal-btn"
+);
+var sharedMomentsArea = document.querySelector("#shared-moments");
 
 function openCreatePostModal() {
-  createPostArea.style.display = 'block';
+  createPostArea.style.display = "block";
   if (deferredPrompt) {
     deferredPrompt.prompt();
 
-    deferredPrompt.userChoice.then(function(choiceResult) {
+    deferredPrompt.userChoice.then(function (choiceResult) {
       console.log(choiceResult.outcome);
 
-      if (choiceResult.outcome === 'dismissed') {
-        console.log('User cancelled installation');
+      if (choiceResult.outcome === "dismissed") {
+        console.log("User cancelled installation");
       } else {
-        console.log('User added to home screen');
+        console.log("User added to home screen");
       }
     });
 
@@ -23,12 +25,12 @@ function openCreatePostModal() {
 }
 
 function closeCreatePostModal() {
-  createPostArea.style.display = 'none';
+  createPostArea.style.display = "none";
 }
 
-shareImageButton.addEventListener('click', openCreatePostModal);
+shareImageButton.addEventListener("click", openCreatePostModal);
 
-closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
+closeCreatePostModalButton.addEventListener("click", closeCreatePostModal);
 
 // Allowing user to add something to offine viewing
 // function onSaveButtonClicked(e){
@@ -41,24 +43,30 @@ closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
 //   }
 // }
 
+function clearCards(){
+  while(sharedMomentsArea.hasChildNodes()){
+    sharedMomentsArea.removeChild(sharedMomentsArea.lastChild)
+  }
+}
+
 function createCard() {
-  var cardWrapper = document.createElement('div');
-  cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
-  var cardTitle = document.createElement('div');
-  cardTitle.className = 'mdl-card__title';
+  var cardWrapper = document.createElement("div");
+  cardWrapper.className = "shared-moment-card mdl-card mdl-shadow--2dp";
+  var cardTitle = document.createElement("div");
+  cardTitle.className = "mdl-card__title";
   cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
-  cardTitle.style.backgroundSize = 'cover';
-  cardTitle.style.height = '180px';
+  cardTitle.style.backgroundSize = "cover";
+  cardTitle.style.height = "180px";
   cardWrapper.appendChild(cardTitle);
-  var cardTitleTextElement = document.createElement('h2');
-  cardTitleTextElement.style.color="black"
-  cardTitleTextElement.className = 'mdl-card__title-text';
-  cardTitleTextElement.textContent = 'San Francisco Trip';
+  var cardTitleTextElement = document.createElement("h2");
+  cardTitleTextElement.style.color = "black";
+  cardTitleTextElement.className = "mdl-card__title-text";
+  cardTitleTextElement.textContent = "San Francisco Trip";
   cardTitle.appendChild(cardTitleTextElement);
-  var cardSupportingText = document.createElement('div');
-  cardSupportingText.className = 'mdl-card__supporting-text';
-  cardSupportingText.textContent = 'In San Francisco';
-  cardSupportingText.style.textAlign = 'center';
+  var cardSupportingText = document.createElement("div");
+  cardSupportingText.className = "mdl-card__supporting-text";
+  cardSupportingText.textContent = "In San Francisco";
+  cardSupportingText.style.textAlign = "center";
   // var cardSaveButton = document.createElement('button')
   // cardSaveButton.textContent='Save'
   // cardSaveButton.addEventListener('click',onSaveButtonClicked)
@@ -69,10 +77,33 @@ function createCard() {
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-fetch('https://httpbin.org/get')
-  .then(function(res) {
+let url = "https://httpbin.org/get";
+let networkDataReceived = false;
+
+fetch(url)
+  .then(function (res) {
     return res.json();
   })
-  .then(function(data) {
+  .then(function (data) {
+    console.log("FROM WEB --------> ", data);
+    networkDataReceived = true;
+    clearCards()
     createCard();
   });
+
+if ("caches" in window) {
+  caches
+    .match(url)
+    .then((res) => {
+      if (res) {
+        return res.json();
+      }
+    })
+    .then((data) => {
+      console.log("FROM CACHE ---------->", data);
+      if (!networkDataReceived) {
+        clearCards()
+        createCard();
+      }
+    });
+}
