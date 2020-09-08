@@ -43,6 +43,15 @@ self.addEventListener("activate", (e) => {
   );
 });
 
+function isInArray(string, array) {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] === string) {
+      return true;
+    }
+  }
+  return false;
+}
+
 self.addEventListener("fetch", (e) => {
   let url = "https://httpbin.org/get";
   if (e.request.url.indexOf(url) > -1) {
@@ -54,13 +63,9 @@ self.addEventListener("fetch", (e) => {
         });
       })
     );
-  } 
-  // else if (
-  //   new RegExp("\\b" + STATIC_FILES.join("\\b|\\b") + "\\b").test(e.request.url)
-  // ) {
-  //   e.respondWith(caches.match(e.request));
-  // } 
-  else {
+  } else if (isInArray(e.request.url, STATIC_FILES)) {
+    e.respondWith(caches.match(e.request));
+  } else {
     e.respondWith(
       caches.match(e.request).then((res) => {
         if (res) {
