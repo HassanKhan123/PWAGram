@@ -17,15 +17,16 @@ let STATIC_FILES = [
   "https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css",
 ];
 
-function trimCache(cacheName, maxItems) {
-  caches.open(cacheName).then((cache) => {
-    return cache.keys().then((keys) => {
-      if (keys.length > maxItems) {
-        cache.delete(keys[0]).then(trimCache(cacheName, maxItems));
-      }
-    });
-  });
-}
+//For trimming a cache
+// function trimCache(cacheName, maxItems) {
+//   caches.open(cacheName).then((cache) => {
+//     return cache.keys().then((keys) => {
+//       if (keys.length > maxItems) {
+//         cache.delete(keys[0]).then(trimCache(cacheName, maxItems));
+//       }
+//     });
+//   });
+// }
 
 self.addEventListener("install", (e) => {
   console.log("[SW] Installing service worker...", e);
@@ -68,7 +69,7 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(
       caches.open(DYNAMIC_CACHE).then((cache) => {
         return fetch(e.request).then((res) => {
-          trimCache(DYNAMIC_CACHE, 20);
+          // trimCache(DYNAMIC_CACHE, 20);
           cache.put(e.request, res.clone());
           return res;
         });
@@ -85,7 +86,7 @@ self.addEventListener("fetch", (e) => {
           return fetch(e.request)
             .then((resp) => {
               return caches.open(DYNAMIC_CACHE).then((cache) => {
-                trimCache(DYNAMIC_CACHE, 20);
+                // trimCache(DYNAMIC_CACHE, 20);
                 cache.put(e.request.url, resp.clone());
                 return resp;
               });
