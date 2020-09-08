@@ -1,4 +1,4 @@
-const STATIC_CACHE = "static-v11";
+const STATIC_CACHE = "static-v12";
 const DYNAMIC_CACHE = "dynamic";
 let STATIC_FILES = [
   "/",
