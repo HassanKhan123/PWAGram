@@ -1,4 +1,4 @@
-const STATIC_CACHE = "static-v12";
+const STATIC_CACHE = "static-v14";
 const DYNAMIC_CACHE = "dynamic";
 let STATIC_FILES = [
   "/",
@@ -64,7 +64,7 @@ function isInArray(string, array) {
 }
 
 self.addEventListener("fetch", (e) => {
-  let url = "https://httpbin.org/get";
+  let url = "https://pwagram-4319d.firebaseio.com/posts.json";
   if (e.request.url.indexOf(url) > -1) {
     e.respondWith(
       caches.open(DYNAMIC_CACHE).then((cache) => {
